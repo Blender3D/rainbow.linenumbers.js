@@ -11,7 +11,6 @@ A plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line numb
 
 Everybody loves screenshots:
 
-![Without](https://raw.github.com/Blender3D/rainbow.linenumbers.js/master/screenshots/disabled.png)
 ![With](https://raw.github.com/Blender3D/rainbow.linenumbers.js/master/screenshots/enabled.png)
 
 #Setup
