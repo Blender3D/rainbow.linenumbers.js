@@ -24,45 +24,45 @@ Just include `rainbow.linecount.js` and you're good to go:
 You will need to include some CSS (LESS in this case) to actually give the lines their numbers:
 
     .rainbow {
-      padding: 0;
-      font-size: 0.9em;
+        padding: 0;
+        font-size: 0.9em;
 
-      .rainbow-header {
-        background-color: darken(#22282A, 3%);
+        .rainbow-header {
+            background-color: darken(#22282A, 3%);
 
-        .rainbow-language {
-          text-align: right;
+            .rainbow-language {
+                text-align: right;
 
-          padding: 0.5em;
-        }
-      }
-
-      .rainbow-line {
-        &:hover {
-          background-color: darken(#22282A, 5%);
-
-          .rainbow-line-number {
-            background-color: darken(#22282A, 8%);
-          }
+                padding: 0.5em;
+            }
         }
 
-        .rainbow-line-number {
-          text-align: right;
-          vertical-align: top;
+        .rainbow-line {
+            &:hover {
+                background-color: darken(#22282A, 5%);
 
-          background-color: darken(#22282A, 3%);
+                .rainbow-line-number {
+                    background-color: darken(#22282A, 8%);
+                }
+            }
 
-          padding-left: 0.4em;
-          padding-right: 0.4em;
+            .rainbow-line-number {
+                text-align: right;
+                vertical-align: top;
 
-          &::before {
-            content: attr(data-number);
-          }
+                background-color: darken(#22282A, 3%);
+
+                padding-left: 0.4em;
+                padding-right: 0.4em;
+
+                &::before {
+                    content: attr(data-number);
+                }
+            }
+
+            .rainbow-line-code {
+                padding-left: 1em;
+                width: 100%;
+            }
         }
-
-        .rainbow-line-code {
-          padding-left: 1em;
-          width: 100%;
-        }
-      }
     }
