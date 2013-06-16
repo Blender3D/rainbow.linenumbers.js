@@ -1,66 +1,65 @@
-#Rainbow.linecount.js
+# Rainbow.linenumbers.js
 
-A plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line numbers.
+A plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line numbers. It's about 500 bytes, minified and gzipped.
 
-#Dependencies
-
- - **[Rainbow](https://github.com/ccampbell/rainbow)** - Syntax highlighting
- - **[jQuery](https://github.com/jquery/jquery)** - DOM manipulation. It's heavy, but I can't find a way to accomplish the same task with vanilla JS.
-
-#Screenshots
+# Screenshots
 
 Everybody loves screenshots:
 
-![With](https://raw.github.com/Blender3D/rainbow.linenumbers.js/master/screenshots/enabled.png)
+![With](https://raw.github.com/Blender3D/rainbow.linenumbers.js/master/screenshot.png)
 
-#Setup
+# Setup
 
-Just include `rainbow.linecount.js` and you're good to go:
+Just include `rainbow.linenumbers.js`:
 
-    <script src="js/rainbow.linecount.js"></script>
+    <script src="js/rainbow.linenumbers.js"></script>
 
-#Styling
+# Supported Browsers
 
-You will need to include some CSS (LESS in this case) to actually give the lines their numbers:
+The JavaScript works for IE8 and above. Send me a pull request if you find a way to cleanly support IE7 and IE6.
+
+The CSS `:before` pseudo-selector is used to display uncopyable line numbers, so it won't work in IE7 and below.
+
+# Styling
+
+You will need to include some CSS to actually give the lines their numbers:
+
+    @background: #22282A;
+
+    pre {
+        padding: 0;
+        
+        font-family: 'Monaco', 'Source Code Pro', monospace;
+        font-size: 1em;
+    }
 
     .rainbow {
-        padding: 0;
-        font-size: 0.9em;
+        border-spacing: 0;
+        border-collapse: collapse;
 
-        .rainbow-header {
-            background-color: darken(#22282A, 3%);
-
-            .rainbow-language {
-                text-align: right;
-
-                padding: 0.5em;
-            }
-        }
-
-        .rainbow-line {
+        .line {
             &:hover {
-                background-color: darken(#22282A, 5%);
+                background-color: darken(@background, 5%);
 
-                .rainbow-line-number {
-                    background-color: darken(#22282A, 8%);
+                .line-number {
+                    background-color: darken(@background, 8%);
                 }
             }
 
-            .rainbow-line-number {
+            .line-number {
                 text-align: right;
-                vertical-align: top;
 
-                background-color: darken(#22282A, 3%);
+                background-color: darken(@background, 3%);
 
-                padding-left: 0.4em;
-                padding-right: 0.4em;
-
-                &::before {
-                    content: attr(data-number);
+                padding-left: 0.8em;
+                padding-right: 0.8em;
+                
+                &:before {
+                    content: attr(data-line-number);
                 }
             }
 
-            .rainbow-line-code {
+            .line-code {
                 padding-left: 1em;
                 width: 100%;
             }
