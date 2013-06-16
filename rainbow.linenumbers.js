@@ -15,7 +15,7 @@
  */
 
 // Only install the plugin if Rainbow is present and has been loaded
-if (window.Rainbow) window.Rainbow.linecount = (function(Rainbow) {
+if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
     /*
      * Splits up the DOM element containing
      * highlighted source code into an array of lines
