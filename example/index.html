@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        
+        <title>Syntax Highlighting</title>
+        
+        <script src="rainbow/rainbow.js"></script>
+        <script src="rainbow/generic.js"></script>
+        <script src="rainbow/javascript.js"></script>
+        
+        <script src="../rainbow.linenumbers.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="rainbow/obsidian.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="../theme.css" media="screen" />
+    </head>
+
+    <body>
+        <pre>
+<code data-language="javascript">/**
+ * test function
+ *
+ * @param string
+ * @return string
+ */
+
+
+function blah(foo, blah) {
+    var test = 25;
+
+    console.log(test.length);
+
+    // if foo is true then return this string
+    if (foo === true) {
+        return 'foo is true';
+    }
+    return 'foo is false';
+}
+
+$(document).ready(function() {
+    $("table").on("click", "td", function() {
+        console.log('td click');
+    });
+});
+</code>
+</pre>
+    </body>
+</html>
