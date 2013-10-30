@@ -73,6 +73,13 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
     
     // Callback is called when Rainbow has highlighted a block
     Rainbow.onHighlight(function(block) {
+        // This addresses an issue when Rainbow.color() is called multiple times.
+        // Since code element is replaced with table element below,
+        // second pass of Rainbow.color() will result in block.parentNode being null.
+        if (!block || !block.parentNode) {
+            return;
+        }
+
         // Create a table wrapper
         var table = document.createElement('table');
         table.className = 'rainbow';
