@@ -73,6 +73,13 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
     
     // Callback is called when Rainbow has highlighted a block
     Rainbow.onHighlight(function(block) {
+        // This addresses an issue when Rainbow.color() is called multiple times.
+        // Since code element is replaced with table element below,
+        // second pass of Rainbow.color() will result in block.parentNode being null.
+        if (!block || !block.parentNode) {
+            return;
+        }
+
         // Create a table wrapper
         var table = document.createElement('table');
         table.className = 'rainbow';
@@ -101,11 +108,13 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
             code.innerHTML = line.join('');
         }
         
-        // Clear the parent element
-        var parent = block.parentNode;
+        // This addresses an issue where pre element is being used.
+        // Rainbow allows using either pre element directly, or a nested code element.
+        // In the case of pre element, don't use parentNode as it may not be okay to clear it's content (e.g., <body>).
+        var parent = block.nodeName === 'PRE' ? block : block.parentNode;
+
+        // Clear the parent element and use the table in place of the <code> block
         parent.innerHTML = '';
-        
-        // And use the table in place of the <code> block
         parent.appendChild(table);
     });
 })(window.Rainbow);
