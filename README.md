@@ -10,5 +10,5 @@ A tiny plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line
 
 Just include the plugin and the stylesheet:
 
-    <link rel="stylesheet" href="theme.css"></script>
+    <link rel="stylesheet" href="theme.css" />
     <script src="rainbow.linenumbers.js"></script>
