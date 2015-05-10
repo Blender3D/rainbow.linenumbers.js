@@ -25,8 +25,11 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
             } else {
                 var wrapper = elem.cloneNode(true);
                 wrapper.innerHTML = sourceLines[i];
-                
-                lines.push(wrapper.outerHTML);
+
+                var div = document.createElement('div');
+                div.appendChild(wrapper.cloneNode(true));
+
+                lines.push(div.innerHTML);
             }
         }
 
