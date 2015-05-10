@@ -1,72 +1,61 @@
-/*
- * Copyright 2013 Nikita Nikishin
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 // Only install the plugin if Rainbow is present and has been loaded
 if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
-    /*
-     * Splits up the DOM element containing
-     * highlighted source code into an array of lines
+    /**
+     * Splits up a single element into individual lines
      *
-     * @param {block} Rainbow source element
+     * @param {HTMLElement} elem
      * @returns {Array}
      */
-    this.splitLines = function(block) {
-        // Each line is represented as an array
-        var lines = [[]];
+    function splitElement(elem) {
+        if (elem.nodeType === 3) {
+            // Just split up the text node
+            return elem.nodeValue.split('\n');
+        }
+
+        // Otherwise, we need to split up the HTML
+        var sourceLines = elem.innerHTML.split('\n');
+        var lines = [];
         
-        // Caches the child nodes of the block
-        var childNodes = block.childNodes;
-        
-        // For every child node
-        for (var i = 0; i < childNodes.length; i++) {
-            var elem = childNodes[i];
-            
-            // Array of lines in each element or text node
-            var chunks = [];
-            var lastLine = lines[lines.length - 1];
-            
-            // If the element is a text node
-            if (elem.nodeType === 3) {
-                // Just split up its node value
-                chunks = elem.nodeValue.split('\n');
+        // Wraps each chunk in the parent element. For example:
+        // <b>foo\nbar</b> -> [<b>foo</b>, <b>bar</b>]
+        for (var i = 0; i < sourceLines.length; i++) {
+            // Handles <b>\nbar</b> -> [, <b>bar</b>]
+            if (sourceLines[i] === '') {
+                lines.push('');
             } else {
-                // Otherwise, we need to split up the HTML
-                var stringChunks = elem.innerHTML.split('\n');
+                var wrapper = elem.cloneNode(true);
+                wrapper.innerHTML = sourceLines[i];
                 
-                // Wraps each chunk in the parent element. For example:
-                // <b>foo\nbar</b> -> [<b>foo</b>, <b>bar</b>]
-                for (var j = 0; j < stringChunks.length; j++) {
-                    var wrapper = elem.cloneNode();
-                    wrapper.innerHTML = stringChunks[j];
-                    
-                    chunks.push(wrapper.outerHTML);
-                }
-            }
-            
-            // The first chunk is a continuation of the last line
-            // &#8203; is a zero-width space, which allows
-            // empty lines to be copied
-            lastLine.push(chunks[0] || '&#8203;');
-            
-            // Each subsequent chunk is its own line
-            for (var k = 0; k < chunks.length - 1; k++) {
-                lines.push([chunks[k + 1] || '&#8203;']);
+                lines.push(wrapper.outerHTML);
             }
         }
-        
+
+        return lines;
+    };
+
+    /**
+     * Splits up the element containing highlighted source code
+     * into an array of lines
+     *
+     * @param {HTMLElement} block
+     * @returns {Array}
+     */
+    function splitLines(block) {
+        var lines = [''];
+
+        for (var i = 0; i < block.childNodes.length; i++) {
+            var elemLines = splitElement(block.childNodes[i]);
+
+            // The first element in elemLines is 
+            // a continuation of the previous line
+            lines[lines.length - 1] += elemLines[0];
+
+            // The remaining elements get their own lines
+            for (var j = 1; j < elemLines.length; j++) {
+                lines.push(elemLines[j]);
+            }
+        }
+
         // Returns the array of lines
         return lines;
     };
@@ -86,12 +75,12 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
         table.setAttribute('data-language', block.getAttribute('data-language'));
         
         // Split up the lines of the block
-        var lines = this.splitLines(block);
+        var lines = splitLines(block);
         
         // For each line
         for (var i = 0; i < lines.length; i++) {
-            var line = lines[i],
-                index = i + 1;
+            var line = lines[i];
+            var index = i + 1;
             
             // Create a row
             var row = table.insertRow(-1);
@@ -105,13 +94,19 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
             // Add in the actual line of source code
             var code = row.insertCell(-1);
             code.className = 'line-code';
-            code.innerHTML = line.join('');
+
+            // If the line is blank, add a newline to make it copyable.
+            if (line === '') {
+                line = '\n';
+            }
+
+            code.innerHTML = line;
         }
-        
-        // This addresses an issue where pre element is being used.
-        // Rainbow allows using either pre element directly, or a nested code element.
-        // In the case of pre element, don't use parentNode as it may not be okay to clear it's content (e.g., <body>).
-        var parent = block.nodeName === 'PRE' ? block : block.parentNode;
+
+        // If the block is a <pre> element, its parent is not an element
+        // generated by Rainbow (i.e. it could be <body>). We don't want
+        // to clear this.
+        var parent = (block.nodeName.toLowerCase() === 'pre') ? block : block.parentNode;
 
         // Clear the parent element and use the table in place of the <code> block
         parent.innerHTML = '';
