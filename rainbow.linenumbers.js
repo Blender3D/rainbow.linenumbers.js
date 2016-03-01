@@ -76,15 +76,18 @@ if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
         var table = document.createElement('table');
         table.className = 'rainbow';
         table.setAttribute('data-language', block.getAttribute('data-language'));
-        
+        // Grab the line start number if it was specified
+        var beginLineNo = block.getAttribute('data-line');
+        if (!beginLineNo) {
+        	beginLineNo = 1;
+        }
         // Split up the lines of the block
         var lines = splitLines(block);
         
         // For each line
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i];
-            var index = i + 1;
-            
+            var index = i + Number(beginLineNo);            
             // Create a row
             var row = table.insertRow(-1);
             row.className = 'line line-' + index;
