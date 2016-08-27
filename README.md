@@ -1,6 +1,6 @@
 # Rainbow.linenumbers.js
 
-A tiny plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line numbers. It's just 512 bytes gzipped.
+A tiny plugin for [Rainbow](https://github.com/ccampbell/rainbow) that adds line numbers. It's around 550 bytes gzipped.
 
 # Screenshot
 

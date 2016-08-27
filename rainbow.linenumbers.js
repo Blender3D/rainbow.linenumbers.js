@@ -1,121 +1,106 @@
 // Only install the plugin if Rainbow is present and has been loaded
 if (window.Rainbow) window.Rainbow.linenumbers = (function(Rainbow) {
-    /**
-     * Splits up a single element into individual lines
-     *
-     * @param {HTMLElement} elem
-     * @returns {Array}
-     */
-    function splitElement(elem) {
-        if (elem.nodeType === 3) {
-            // Just split up the text node
-            return elem.nodeValue.split('\n');
-        }
+	/**
+	 * Recursively wraps each line in its parent structure.
+	 *
+	 * @param {(Element|Node)} $elem
+	 * @returns {Array}
+	 */
+	function wrapLines($elem) {
+		// Our base case is a text node, whose contents we just split up
+		if ($elem.nodeType === Node.TEXT_NODE) {
+			var splitContents = $elem.nodeValue.split('\n');
+			var lines = [];
 
-        // Otherwise, we need to split up the HTML
-        var sourceLines = elem.innerHTML.split('\n');
-        var lines = [];
-        
-        // Wraps each chunk in the parent element. For example:
-        // <b>foo\nbar</b> -> [<b>foo</b>, <b>bar</b>]
-        for (var i = 0; i < sourceLines.length; i++) {
-            // Handles <b>\nbar</b> -> [, <b>bar</b>]
-            if (sourceLines[i] === '') {
-                lines.push('');
-            } else {
-                var wrapper = elem.cloneNode(true);
-                wrapper.innerHTML = sourceLines[i];
+			for (var i = 0; i < splitContents.length; i++) {
+				var $fragment = document.createDocumentFragment();
+				$fragment.appendChild(document.createTextNode(splitContents[i]));
 
-                var div = document.createElement('div');
-                div.appendChild(wrapper.cloneNode(true));
+				lines.push($fragment);
+			}
 
-                lines.push(div.innerHTML);
-            }
-        }
+			return lines;
+		}
 
-        return lines;
-    };
+		// Make a wrapper copy of the current element
+		var $wrapper = $elem.cloneNode(false);
+		$wrapper.innerHTML = '';
 
-    /**
-     * Splits up the element containing highlighted source code
-     * into an array of lines
-     *
-     * @param {HTMLElement} block
-     * @returns {Array}
-     */
-    function splitLines(block) {
-        var lines = [''];
+		var lines = [];
 
-        for (var i = 0; i < block.childNodes.length; i++) {
-            var elemLines = splitElement(block.childNodes[i]);
+		// Recursively wrap each child
+		for (var i = 0; i < $elem.childNodes.length; i++) {
+			var $child = $elem.childNodes[i];
+			var childLines = wrapLines($child);
 
-            // The first element in elemLines is 
-            // a continuation of the previous line
-            lines[lines.length - 1] += elemLines[0];
+			for (var j = 0; j < childLines.length; j++) {
+				if (j === 0 && lines.length > 0) {
+					// Continue the last line, if possible
+					lines[lines.length - 1].appendChild(childLines[0]);
+				} else {
+					// Otherwse, create a new wrapped line
+					var $wrappedLine = $wrapper.cloneNode(false);
+					$wrappedLine.appendChild(childLines[j]);
+					lines.push($wrappedLine);
+				}
+			}
+		}
 
-            // The remaining elements get their own lines
-            for (var j = 1; j < elemLines.length; j++) {
-                lines.push(elemLines[j]);
-            }
-        }
+		return lines;
+	}
 
-        // Returns the array of lines
-        return lines;
-    };
-    
-    // Callback is called when Rainbow has highlighted a block
-    Rainbow.onHighlight(function(block) {
-        // This addresses an issue when Rainbow.color() is called multiple times.
-        // Since code element is replaced with table element below,
-        // second pass of Rainbow.color() will result in block.parentNode being null.
-        if (!block || !block.parentNode) {
-            return;
-        }
+	// Callback is called when Rainbow has highlighted a block
+	Rainbow.onHighlight(function($block) {
+		// This addresses an issue when Rainbow.color() is called multiple times.
+		// Since code element is replaced with table element below,
+		// second pass of Rainbow.color() will result in $block.parentNode being null.
+		if (!$block || !$block.parentNode) {
+			return;
+		}
 
-        // Create a table wrapper
-        var table = document.createElement('table');
-        table.className = 'rainbow';
-        table.setAttribute('data-language', block.getAttribute('data-language'));
-        // Grab the line start number if it was specified
-        var beginLineNo = block.getAttribute('data-line');
-        if (!beginLineNo) {
-        	beginLineNo = 1;
-        }
-        // Split up the lines of the block
-        var lines = splitLines(block);
-        
-        // For each line
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            var index = i + Number(beginLineNo);            
-            // Create a row
-            var row = table.insertRow(-1);
-            row.className = 'line line-' + index;
-            
-            // Create a cell which displays the line number with CSS
-            var lineNumber = row.insertCell(-1);
-            lineNumber.className = 'line-number';
-            lineNumber.setAttribute('data-line-number', index);
-            
-            // Add in the actual line of source code
-            var code = row.insertCell(-1);
-            code.className = 'line-code';
+		// Create a table wrapper
+		var $table = document.createElement('table');
+		$table.className = 'rainbow';
+		$table.setAttribute('data-language', $block.getAttribute('data-language'));
 
-            // If the line is blank, add a newline to make it copyable.
-            if (line === '') {
-                line = '\n';
-            }
+		// Grab the line start number if it was specified
+		var startNumber = Number($block.getAttribute('data-line') || 1);
 
-            code.innerHTML = line;
-        }
+		// Split up the lines of the $block
+		var lines = wrapLines($block);
 
-        // If the block is a <pre> element, its parent is not an element
-        // generated by Rainbow (i.e. it could be <body>). We don't want
-        // to clear this.
-        var parent = (block.nodeName.toLowerCase() === 'pre') ? block : block.parentNode;
+		// For each line
+		for (var i = 0; i < lines.length; i++) {
+			var line = lines[i];
+			var index = i + startNumber;
+			// Create a row
+			var $row = $table.insertRow(-1);
+			$row.className = 'line line-' + index;
 
-        // Clear the parent element and use the table in place of the <code> block
-        parent.innerHTML = '';
-        parent.appendChild(table);
-    });
+			// Create a cell which displays the line number with CSS
+			var $lineNumber = $row.insertCell(-1);
+			$lineNumber.className = 'line-number';
+			$lineNumber.setAttribute('data-line-number', index);
+
+			// Add in the actual line of source code
+			var $code = $row.insertCell(-1);
+			$code.className = 'line-code';
+
+			// If the line is blank, add a newline to make it copyable.
+			if (line.textContent === '') {
+				line.textContent = '\n';
+			}
+
+			$code.appendChild(line);
+		}
+
+		// If the $block is a <pre> element, its parent is not an element
+		// generated by Rainbow (i.e. it could be <body>). We don't want
+		// to clear this.
+		var parent = ($block.nodeName.toLowerCase() === 'pre') ? $block : $block.parentNode;
+
+		// Clear the parent element and use the table in place of the <code> $block
+		parent.innerHTML = '';
+		parent.appendChild($table);
+	});
 })(window.Rainbow);

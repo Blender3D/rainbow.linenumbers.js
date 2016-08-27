@@ -7,43 +7,52 @@
         <title>Syntax Highlighting</title>
         
         <script src="rainbow/rainbow.js"></script>
-        <script src="rainbow/generic.js"></script>
+        <script src="rainbow/html.js"></script>
+        <script src="rainbow/php.js"></script>
         <script src="rainbow/javascript.js"></script>
+        <script src="rainbow/css.js"></script>
+        <script src="rainbow/generic.js"></script>
         
-        <script src="../rainbow.linenumbers.js"></script>
+        <script src="../rainbow.linenumbers.min.js"></script>
         
-        <link rel="stylesheet" type="text/css" href="rainbow/obsidian.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="rainbow/tomorrow-night.css" media="screen" />
         <link rel="stylesheet" type="text/css" href="../theme.css" media="screen" />
     </head>
 
     <body>
-        <pre>
-<code data-line="45" data-language="javascript">/**
- * test function
- *
- * @param string
- * @return string
- */
-
-
-function blah(foo, blah) {
-    var test = 25;
-
-    console.log(test.length);
-
-    // if foo is true then return this string
-    if (foo === true) {
-        return 'foo is true';
-    }
-    return 'foo is false';
-}
-
-$(document).ready(function() {
-    $("table").on("click", "td", function() {
-        console.log('td click');
+        <pre><code data-language="html">&lt;script&gt;
+/* J stuff */
+jQuery(function ($) {
+    $(".rump").click(function () {
+        $(".underwear").toggleClass('soiled');
     });
 });
-</code>
-</pre>
+&lt;/script&gt;
+
+&lt;style&gt;
+/*-------------------------------------
+                  Style stuff
+-------------------------------------*/
+.foo { color: brown }
+.bar { color: yellow }
+
+/* blah */
+.snow:before { background-color: #eee }
+.snow:after { background-color: yellow }
+&lt;/style&gt;
+
+&lt;?php
+/*
+PHP Comment
+*/
+function test_function() { // blah
+    if ( $x == $y ) {
+        do('something');
+    }
+    else {
+        do('something_else');
+    }
+}
+?&gt;</code></pre>
     </body>
 </html>
